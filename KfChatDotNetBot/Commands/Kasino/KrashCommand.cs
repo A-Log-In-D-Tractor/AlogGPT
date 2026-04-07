@@ -67,7 +67,7 @@ public class KrashBetCommand : ICommand
                 true, autoDeleteAfter: TimeSpan.FromSeconds(5));
             return;
         }
-        if (botInstance.BotServices.KasinoKrash.theGame == null)
+        if (botInstance.BotServices.KasinoKrash.TheGame == null)
         {
             //start a new game
             await botInstance.BotServices.KasinoKrash.StartGame(gambler, wager, multi);

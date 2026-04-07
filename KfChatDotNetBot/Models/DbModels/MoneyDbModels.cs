@@ -416,7 +416,8 @@ public enum WagerGame
     [Description("Plinko")]
     Plinko,
     [Description("Roulette but live")]
-    Roulette
+    Roulette,
+    Krash
 }
 
 public enum GamblerState
