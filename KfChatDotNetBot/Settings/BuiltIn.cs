@@ -566,6 +566,10 @@ public static class BuiltIn
         public static string ShuffleDotUsBmjUserId = "ShuffleDotUs.BmjUserId";
         [BuiltInSetting("UUID for the current MOTD message UUID", SettingValueType.Text)]
         public static string KiwiFarmsMotdUuid = "KiwiFarms.MotdUuid";
+        [BuiltInSetting("Whether to delete the impersonation attempt instead of just calling it out", SettingValueType.Boolean, "false", BooleanRegex)]
+        public static string BotDiscordImpersonationDeleteAttempt = "Bot.DiscordImpersonation.DeleteAttempt";
+        [BuiltInSetting("What search strings the Homoglyphic searcher should look for", SettingValueType.Array, "[\"discord16.png\", \"mBossmanJack:\", \"mBossnanJack:\", \"mBosmanJack:\", \"by @KenoGPT at\"]")]
+        public static string BotDiscordImpersonationSearchStrings = "Bot.DiscordImpersonation.SearchStrings";
     }
 }
 
