@@ -570,6 +570,10 @@ public static class BuiltIn
         public static string BotDiscordImpersonationDeleteAttempt = "Bot.DiscordImpersonation.DeleteAttempt";
         [BuiltInSetting("What search strings the Homoglyphic searcher should look for", SettingValueType.Array, "[\"discord16.png\", \"mBossmanJack:\", \"mBossnanJack:\", \"mBosmanJack:\", \"by @KenoGPT at\"]")]
         public static string BotDiscordImpersonationSearchStrings = "Bot.DiscordImpersonation.SearchStrings";
+        [BuiltInSetting("Whether krash is enabled", SettingValueType.Boolean, "true", BooleanRegex)]
+        public static string KasinoKrashEnabled = "Kasino.Krash.Enabled";
+        [BuiltInSetting("Delay in milliseconds before cleaning up krash", SettingValueType.Text, "10000", WholeNumberRegex)]
+        public static string KasinoKrashCleanupDelay = "Kasino.Krash.CleanupDelay";
     }
 }
 

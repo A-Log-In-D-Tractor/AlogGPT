@@ -28,8 +28,23 @@ public class KrashBetCommand : ICommand
         GroupCollection arguments,
         CancellationToken ctx)
     {
+        var settings =
+            await SettingsProvider.GetMultipleValuesAsync([
+                BuiltIn.Keys.KasinoKrashEnabled, BuiltIn.Keys.KasinoKrashCleanupDelay,
+                BuiltIn.Keys.KasinoGameDisabledMessageCleanupDelay
+            ]);
+        var cleanupDelay = TimeSpan.FromMilliseconds(settings[BuiltIn.Keys.KasinoKrashCleanupDelay].ToType<int>());
         
-        var cleanupDelay = TimeSpan.FromSeconds(10);
+        var krashEnabled = settings[BuiltIn.Keys.KasinoKrashEnabled].ToBoolean();
+        if (!krashEnabled)
+        {
+            var gameDisabledCleanupDelay =
+                TimeSpan.FromMilliseconds(settings[BuiltIn.Keys.KasinoGameDisabledMessageCleanupDelay].ToType<int>());
+            await botInstance.SendChatMessageAsync(
+                $"{user.FormatUsername()}, krash is currently disabled.",
+                true, autoDeleteAfter: gameDisabledCleanupDelay);
+            return;
+        }
         
         if (message is { IsWhisper: false, MessageUuid: not null })
         {
