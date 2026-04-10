@@ -133,6 +133,7 @@ public class KasinoKrash : IDisposable
         var preGameTimer = TimeSpan.FromSeconds(30);
         var interval = TimeSpan.FromSeconds(1);
         var timer = new PeriodicTimer(interval);
+        await _kfChatBot.WaitForChatMessageAsync(msg, ct: _ct);
         
         while (await timer.WaitForNextTickAsync(_ct)) //timer before starting the game
         {
@@ -144,8 +145,8 @@ public class KasinoKrash : IDisposable
                 else bets += " on freehand!";
                 bets += "[br]";
             }
-            await _kfChatBot.KfClient.EditMessageAsync(msg.ChatMessageUuid,
-                $"{TheGame.Creator.User.FormatUsername()} started a Krash! You have [b]{preGameTimer}[/b] to place your bets.[br]{bets}");
+            await _kfChatBot.KfClient.EditMessageAsync(msg.ChatMessageUuid!,
+                $"{TheGame.Creator.User.FormatUsername()} started a Krash! You have [b]{preGameTimer}[/b] to place your bets. [ditto]!krash[/ditto] <amount> <optional multi>[br]{bets}");
             preGameTimer -= interval;
             if (preGameTimer <= TimeSpan.Zero)
             {
@@ -180,6 +181,14 @@ public class KasinoKrash : IDisposable
         await _kfChatBot.KfClient.EditMessageAsync(msg.ChatMessageUuid!, $"[center][b][size=200][color=red]{TheGame.FinalMulti}x");
         foreach (var bet in TheGame.Bets)
         {
+            var freshBalance = await Money.GetGamblerEntityAsync(bet.Gambler.User.Id, ct: _ct);
+            if (freshBalance?.Balance < bet.Wager)
+            {
+                await _kfChatBot.SendChatMessageAsync(
+                    $"Forfeited {bet.Gambler.User.FormatUsername()} as they no longer have a sufficient balance for their wager",
+                    true, autoDeleteAfter: TimeSpan.FromSeconds(10));
+                continue;
+            }
             if (bet.Multi <= TheGame.FinalMulti && bet.Multi != -1)
             {
                 //you win
@@ -211,7 +220,7 @@ public class KasinoKrash : IDisposable
 
         HOUSE_EDGE = 0.98m;
         //now close the game
-        await Task.Delay(5000);
+        await Task.Delay(5000, _ct);
         await _kfChatBot.KfClient.DeleteMessageAsync(msg.ChatMessageUuid!);
         await RemoveKrashState();
     }
