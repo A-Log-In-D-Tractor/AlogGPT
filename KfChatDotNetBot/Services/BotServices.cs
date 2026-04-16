@@ -146,7 +146,9 @@ public class BotServices
     private async Task BuildWinna()
     {
         _logger.Debug("Building Winna");
-        _winna = new Winna((await SettingsProvider.GetValueAsync(BuiltIn.Keys.Proxy)).Value);
+        var settings = await SettingsProvider.GetMultipleValuesAsync([BuiltIn.Keys.WinnaEnabled, BuiltIn.Keys.Proxy]);
+        if (!settings[BuiltIn.Keys.WinnaEnabled].ToBoolean()) return;
+        _winna = new Winna(settings[BuiltIn.Keys.Proxy].Value);
         _winna.OnWinnaBet += OnWinnaBet;
         await _winna.StartWsClient();
     }
