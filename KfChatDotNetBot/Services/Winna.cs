@@ -19,6 +19,7 @@ public class Winna : IDisposable
     public event OnWinnaBetEventHandler? OnWinnaBet;
     public event OnWsDisconnectionEventHandler? OnWsDisconnection;
     private string? _userAgent;
+    private CookieContainer _cookieContainer = new();
 
     public Winna(string? proxy = null)
     {
@@ -32,13 +33,35 @@ public class Winna : IDisposable
         await CreateWsClient();
     }
 
+    public async Task PopulateCookieContainer()
+    {
+        var handler = new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.All,
+            CookieContainer = _cookieContainer,
+            UseCookies = true
+        };
+        if (_proxy != null)
+        {
+            handler.UseProxy = true;
+            handler.Proxy = new WebProxy(_proxy);
+        }
+
+        using var client = new HttpClient(handler);
+        var response =
+            await client.GetAsync("https://games-content-prod.winna.com/public/v1/feeds?type=allBets&perPage=6");
+        _ = await response.Content.ReadAsStringAsync();
+    }
+
     private async Task CreateWsClient()
     {
+        await PopulateCookieContainer();
         var factory = new Func<ClientWebSocket>(() =>
         {
             var clientWs = new ClientWebSocket();
             clientWs.Options.SetRequestHeader("Origin", "https://winna.com");
             clientWs.Options.SetRequestHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0");
+            clientWs.Options.Cookies = _cookieContainer;
             if (_proxy == null) return clientWs;
             _logger.Debug($"Using proxy address {_proxy}");
             clientWs.Options.Proxy = new WebProxy(_proxy);
