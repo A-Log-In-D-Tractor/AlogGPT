@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Text.Json;
 using KfChatDotNetBot.Models;
+using KfChatDotNetBot.Settings;
 using NLog;
 using Websocket.Client;
 
@@ -19,7 +20,6 @@ public class Winna : IDisposable
     public event OnWinnaBetEventHandler? OnWinnaBet;
     public event OnWsDisconnectionEventHandler? OnWsDisconnection;
     private string? _userAgent;
-    private CookieContainer _cookieContainer = new();
 
     public Winna(string? proxy = null)
     {
@@ -33,35 +33,16 @@ public class Winna : IDisposable
         await CreateWsClient();
     }
 
-    public async Task PopulateCookieContainer()
-    {
-        var handler = new HttpClientHandler
-        {
-            AutomaticDecompression = DecompressionMethods.All,
-            CookieContainer = _cookieContainer,
-            UseCookies = true
-        };
-        if (_proxy != null)
-        {
-            handler.UseProxy = true;
-            handler.Proxy = new WebProxy(_proxy);
-        }
-
-        using var client = new HttpClient(handler);
-        var response =
-            await client.GetAsync("https://games-content-prod.winna.com/public/v1/feeds?type=allBets&perPage=6");
-        _ = await response.Content.ReadAsStringAsync();
-    }
-
     private async Task CreateWsClient()
     {
-        await PopulateCookieContainer();
+        var cookies =
+            (await SettingsProvider.GetValueAsync(BuiltIn.Keys.WinnaCookies)).JsonDeserialize<List<string>>();
         var factory = new Func<ClientWebSocket>(() =>
         {
             var clientWs = new ClientWebSocket();
             clientWs.Options.SetRequestHeader("Origin", "https://winna.com");
             clientWs.Options.SetRequestHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0");
-            clientWs.Options.Cookies = _cookieContainer;
+            clientWs.Options.SetRequestHeader("Cookie", string.Join("; ", cookies!));
             if (_proxy == null) return clientWs;
             _logger.Debug($"Using proxy address {_proxy}");
             clientWs.Options.Proxy = new WebProxy(_proxy);

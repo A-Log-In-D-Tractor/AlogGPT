@@ -584,6 +584,8 @@ public static class BuiltIn
         public static string WinnaEnabled = "Winna.Enabled";
         [BuiltInSetting("BossmanJack's Winna username", SettingValueType.Text, "ImBossmanJack")]
         public static string WinnaBmjUsername = "Winna.BmjUsername";
+        [BuiltInSetting("Array of cookies as a shitty hack to get Winna going", SettingValueType.Array, "[]")]
+        public static string WinnaCookies = "Winna.Cookies";
     }
 }
 
