@@ -475,6 +475,7 @@ public class KasinoMines
         else bets = coords;
         foreach (var coord in bets) //the main portion of the game
         {
+            var r = Money.GetRandomNumber(game.Creator, 0, 100);
             await Task.Delay(100);
             if (game.MinesBoard[coord.r][ coord.c] == 'M')
             {
@@ -490,12 +491,12 @@ public class KasinoMines
                 return false;
             }
             
-            if (Money.GetRandomNumber(game.Creator, 0, 100) > 100 * HOUSE_EDGE)//if you didn't lose, check to see if the switch was flipped
+            if (r > 100 * HOUSE_EDGE && game.BetsPlaced.Count == 0)//if you didn't lose, check to see if the switch was flipped (only on the first round)
             {
                 game.BetsPlaced.Add(coord);
                 await _kfChatBot.KfClient.EditMessageAsync(msg.ChatMessageUuid!, game.ToString());   
                 await game.RigBoard(coord);
-                await Task.Delay(50);
+                await Task.Delay(75);
                 await _kfChatBot.KfClient.EditMessageAsync(msg.ChatMessageUuid!, game.ToString());
                 _ = game.Explode(coord, msg);
                 var newBalance = await Money.NewWagerAsync(game.Creator.Id, game.Wager, -game.Wager, WagerGame.Mines);
