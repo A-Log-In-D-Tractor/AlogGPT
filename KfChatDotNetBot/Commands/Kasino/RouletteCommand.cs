@@ -61,8 +61,7 @@ public class RouletteCommand : ICommand
         var settings = await SettingsProvider.GetMultipleValuesAsync([
             BuiltIn.Keys.KasinoGameDisabledMessageCleanupDelay,
             BuiltIn.Keys.KasinoRouletteEnabled,
-            BuiltIn.Keys.KasinoRouletteCountdownDuration,
-            BuiltIn.Keys.BotRedisConnectionString
+            BuiltIn.Keys.KasinoRouletteCountdownDuration
         ]);
         
         // Check if roulette is enabled
@@ -84,8 +83,7 @@ public class RouletteCommand : ICommand
             return;
         }
 
-        var redis = await ConnectionMultiplexer.ConnectAsync(settings[BuiltIn.Keys.BotRedisConnectionString].Value!);
-        _redisDb = redis.GetDatabase();
+        _redisDb = Redis.Multiplexer.GetDatabase();
         
         var countdownDuration = TimeSpan.FromSeconds(
             settings[BuiltIn.Keys.KasinoRouletteCountdownDuration].ToType<int>());
