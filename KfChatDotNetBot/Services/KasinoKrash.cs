@@ -202,7 +202,6 @@ public class KasinoKrash : IDisposable
                     await _kfChatBot.SendChatMessageAsync(
                         $"{bet.Gambler.User.FormatUsername()}, due to your poor gambling skills, your bet was scaled down to {await bet.Wager.FormatKasinoCurrencyAsync()} to match your remaining balance.",
                         true, autoDeleteAfter: TimeSpan.FromSeconds(10));
-                    continue;
                 }
             }
             else if (bet.Multi <= TheGame.FinalMulti && bet.Multi != -1)
